@@ -1,0 +1,6 @@
+{
+  "name": "MAV - Clothing Store",
+  "description": "Mahfuz Official Clothing Store Billing Portal - Single-Page Web Application for garments sales tracking, INR (₹) live dashboard metrics, and professional invoices.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

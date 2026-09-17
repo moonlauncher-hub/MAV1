@@ -1,0 +1,1624 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MAV - Official Business Portal</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+          },
+          colors: {
+            mav: {
+              50: '#f0f7ff',
+              100: '#e0effe',
+              200: '#bae0fd',
+              300: '#7cc6fb',
+              400: '#38a7f7',
+              500: '#0e8be4',
+              600: '#026fc4',
+              700: '#03589f',
+              800: '#074c83',
+              900: '#0b3f6d',
+              950: '#072848',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Font Awesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <style>
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.4);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(148, 163, 184, 0.7);
+    }
+
+    /* Print Stylesheet for clean Invoice printing & PDF saving */
+    @media print {
+      body * {
+        visibility: hidden !important;
+      }
+      #invoice-modal-content, #invoice-modal-content * {
+        visibility: visible !important;
+      }
+      #invoice-modal {
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        height: auto !important;
+        background: transparent !important;
+        padding: 0 !important;
+        display: block !important;
+      }
+      #invoice-modal-content {
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 24px !important;
+        background: #ffffff !important;
+        color: #0f172a !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .print-dark-text {
+        color: #0f172a !important;
+      }
+      .print-border {
+        border-color: #e2e8f0 !important;
+      }
+      .print-bg-light {
+        background-color: #f8fafc !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen transition-colors duration-200 antialiased selection:bg-mav-500 selection:text-white">
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none flex items-center gap-3 bg-slate-900 border border-slate-700 text-slate-100 px-5 py-3.5 rounded-xl shadow-2xl">
+    <div id="toast-icon" class="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+      <i class="fa-solid fa-check"></i>
+    </div>
+    <div>
+      <p id="toast-title" class="text-sm font-semibold">Success</p>
+      <p id="toast-message" class="text-xs text-slate-400">Operation completed successfully.</p>
+    </div>
+  </div>
+
+  <div id="app-container" class="min-h-screen flex flex-col pb-12">
+    <!-- Header & Branding -->
+    <header class="sticky top-0 z-40 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 transition-colors duration-200">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+        <!-- Logo & Title -->
+        <div class="flex items-center gap-3.5">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-mav-600 to-blue-500 flex items-center justify-center text-white font-extrabold text-2xl tracking-wider shadow-lg shadow-mav-500/25 border border-blue-400/30 shrink-0">
+            M
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="text-xl sm:text-2xl font-black tracking-tight text-white flex items-center gap-2">
+                MAV
+                <span class="text-xs uppercase tracking-widest px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 font-bold border border-blue-500/30">Official</span>
+              </h1>
+            </div>
+            <p class="text-xs sm:text-sm text-slate-400 font-medium">Mahfuz Official Sales & Billing Portal</p>
+          </div>
+        </div>
+
+        <!-- Right Controls (Live Clock, Theme Switcher) -->
+        <div class="flex items-center gap-3 sm:gap-4">
+          <!-- Live Date & Clock -->
+          <div class="hidden md:flex flex-col text-right border-r border-slate-800 pr-4">
+            <span id="live-time" class="text-xs font-semibold text-slate-300 tracking-wide font-mono">--:--:--</span>
+            <span id="live-date" class="text-[11px] text-slate-500">Today</span>
+          </div>
+
+          <!-- Quick Action: Demo Reset -->
+          <button id="btn-reset-data" title="Reload default sample data" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-slate-200 hover:bg-slate-800/80 border border-slate-800 transition-all">
+            <i class="fa-solid fa-rotate-right text-xs"></i>
+            <span>Sample Data</span>
+          </button>
+
+          <!-- Dark / Light Theme Toggle -->
+          <button id="theme-toggle" class="p-2.5 rounded-xl bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700/80 border border-slate-700 transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-mav-500" aria-label="Toggle theme">
+            <i id="theme-icon" class="fa-solid fa-sun text-amber-400"></i>
+          </button>
+
+          <!-- Authenticated User Profile & Logout -->
+          <div id="user-header-profile" class="hidden items-center gap-2 pl-3 border-l border-slate-800">
+            <div class="flex items-center gap-2.5">
+              <div id="user-header-avatar" class="w-8 h-8 rounded-lg bg-gradient-to-tr from-mav-600 to-blue-500 text-white font-bold text-xs flex items-center justify-center border border-blue-400/40 shadow-sm">MR</div>
+              <div class="hidden lg:flex flex-col text-left">
+                <span id="user-header-name" class="text-xs font-bold text-white leading-tight">Mahfuzur Rahman</span>
+                <span id="user-header-role" class="text-[10px] font-semibold text-emerald-400 leading-tight">Store Manager</span>
+              </div>
+            </div>
+            <button id="btn-logout" title="Sign Out of Portal" class="p-2 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 border border-slate-800 transition-all cursor-pointer">
+              <i class="fa-solid fa-right-from-bracket text-xs"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 flex-1 w-full">
+      
+      <!-- AUTHENTICATION VIEW (SIGN IN / REGISTER) -->
+      <div id="auth-view" class="max-w-md mx-auto py-8 sm:py-12 w-full">
+        <div class="relative rounded-3xl bg-slate-900/90 dark:bg-slate-900/90 border border-slate-800 shadow-2xl p-6 sm:p-8 backdrop-blur-xl transition-all">
+          
+          <!-- Auth Header -->
+          <div class="text-center mb-6">
+            <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-mav-600 to-blue-500 flex items-center justify-center text-white font-extrabold text-2xl mx-auto shadow-lg shadow-mav-500/25 border border-blue-400/30 mb-3">
+              <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <h2 class="text-2xl font-black tracking-tight text-white">Staff Access Portal</h2>
+            <p class="text-xs text-slate-400 mt-1">Sign in with authorized credentials to access MAV sales records & invoicing</p>
+          </div>
+
+          <!-- Auth Tab Switcher -->
+          <div class="flex rounded-xl bg-slate-950/60 p-1 mb-6 border border-slate-800">
+            <button id="tab-login" type="button" class="flex-1 py-2 rounded-lg text-xs font-bold transition-all text-white bg-mav-600 shadow-md">
+              Sign In
+            </button>
+            <button id="tab-register" type="button" class="flex-1 py-2 rounded-lg text-xs font-bold transition-all text-slate-400 hover:text-slate-200">
+              Create Account
+            </button>
+          </div>
+
+          <!-- Alert/Error Message Container -->
+          <div id="auth-alert" class="hidden mb-5 p-3.5 rounded-xl border text-xs flex items-center gap-2.5">
+            <i id="auth-alert-icon" class="fa-solid fa-triangle-exclamation shrink-0"></i>
+            <span id="auth-alert-text"></span>
+          </div>
+
+          <!-- LOGIN FORM -->
+          <form id="login-form" class="space-y-4">
+            <div>
+              <label for="login-username" class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Username / Staff ID</label>
+              <div class="relative">
+                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                  <i class="fa-solid fa-user text-xs"></i>
+                </span>
+                <input type="text" id="login-username" required placeholder="e.g. mahfuz" autocomplete="username"
+                  class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-950/70 border border-slate-800 text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-mav-500 focus:border-transparent transition-all">
+              </div>
+            </div>
+
+            <div>
+              <div class="flex items-center justify-between mb-1.5">
+                <label for="login-password" class="block text-xs font-bold uppercase tracking-wider text-slate-400">Password</label>
+              </div>
+              <div class="relative">
+                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                  <i class="fa-solid fa-lock text-xs"></i>
+                </span>
+                <input type="password" id="login-password" required placeholder="••••••••" autocomplete="current-password"
+                  class="w-full pl-10 pr-10 py-2.5 rounded-xl bg-slate-950/70 border border-slate-800 text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-mav-500 focus:border-transparent transition-all">
+                <button type="button" id="btn-toggle-login-pwd" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-500 hover:text-slate-300">
+                  <i class="fa-solid fa-eye text-xs"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between pt-1">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" id="login-remember" checked class="w-4 h-4 rounded bg-slate-950 border-slate-800 text-mav-600 focus:ring-mav-500">
+                <span class="text-xs text-slate-400">Stay signed in</span>
+              </label>
+            </div>
+
+            <button type="submit" id="btn-login-submit"
+              class="w-full py-3 rounded-xl bg-gradient-to-r from-mav-600 to-blue-500 hover:from-mav-500 hover:to-blue-400 text-white font-bold text-sm shadow-lg shadow-mav-500/25 flex items-center justify-center gap-2 transition-all cursor-pointer">
+              <i class="fa-solid fa-right-to-bracket"></i>
+              <span>Sign In to Portal</span>
+            </button>
+
+            <!-- Quick Demo Credentials Box -->
+            <div class="pt-4 border-t border-slate-800/80">
+              <span class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Quick Demo Accounts:</span>
+              <div class="grid grid-cols-2 gap-2">
+                <button type="button" onclick="fillDemoCredentials('mahfuz', 'password123')"
+                  class="p-2 rounded-xl bg-slate-950/80 hover:bg-slate-800 border border-slate-800 text-left transition-all cursor-pointer">
+                  <div class="text-xs font-bold text-white">Store Manager</div>
+                  <div class="text-[10px] text-slate-400 font-mono">mahfuz / password123</div>
+                </button>
+                <button type="button" onclick="fillDemoCredentials('priya', 'staff123')"
+                  class="p-2 rounded-xl bg-slate-950/80 hover:bg-slate-800 border border-slate-800 text-left transition-all cursor-pointer">
+                  <div class="text-xs font-bold text-white">Sales Staff</div>
+                  <div class="text-[10px] text-slate-400 font-mono">priya / staff123</div>
+                </button>
+              </div>
+            </div>
+          </form>
+
+          <!-- REGISTER FORM -->
+          <form id="register-form" class="space-y-4 hidden">
+            <div>
+              <label for="reg-fullname" class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Full Name</label>
+              <div class="relative">
+                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                  <i class="fa-solid fa-id-card text-xs"></i>
+                </span>
+                <input type="text" id="reg-fullname" required placeholder="e.g. Mahfuzur Rahman"
+                  class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-950/70 border border-slate-800 text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-mav-500 focus:border-transparent transition-all">
+              </div>
+            </div>
+
+            <div>
+              <label for="reg-username" class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Username (Alphanumeric)</label>
+              <div class="relative">
+                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                  <i class="fa-solid fa-user text-xs"></i>
+                </span>
+                <input type="text" id="reg-username" required placeholder="e.g. mahfuz2026" autocomplete="username"
+                  class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-950/70 border border-slate-800 text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-mav-500 focus:border-transparent transition-all">
+              </div>
+            </div>
+
+            <div>
+              <label for="reg-role" class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Assigned Role</label>
+              <div class="relative">
+                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                  <i class="fa-solid fa-briefcase text-xs"></i>
+                </span>
+                <select id="reg-role" class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-950/70 border border-slate-800 text-white text-sm focus:outline-none focus:ring-2 focus:ring-mav-500 focus:border-transparent transition-all appearance-none cursor-pointer">
+                  <option value="Store Manager">Store Manager</option>
+                  <option value="Sales Associate" selected>Sales Associate</option>
+                  <option value="Cashier">Cashier</option>
+                </select>
+                <span class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-slate-500">
+                  <i class="fa-solid fa-chevron-down text-xs"></i>
+                </span>
+              </div>
+            </div>
+
+            <div>
+              <label for="reg-password" class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Password (Min 6 chars)</label>
+              <div class="relative">
+                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                  <i class="fa-solid fa-lock text-xs"></i>
+                </span>
+                <input type="password" id="reg-password" required placeholder="••••••••" autocomplete="new-password"
+                  class="w-full pl-10 pr-10 py-2.5 rounded-xl bg-slate-950/70 border border-slate-800 text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-mav-500 focus:border-transparent transition-all">
+                <button type="button" id="btn-toggle-reg-pwd" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-500 hover:text-slate-300">
+                  <i class="fa-solid fa-eye text-xs"></i>
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label for="reg-confirm-password" class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Confirm Password</label>
+              <div class="relative">
+                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                  <i class="fa-solid fa-lock-check text-xs"></i>
+                </span>
+                <input type="password" id="reg-confirm-password" required placeholder="••••••••" autocomplete="new-password"
+                  class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-950/70 border border-slate-800 text-white placeholder-slate-500 text-sm focus:outline-none focus:ring-2 focus:ring-mav-500 focus:border-transparent transition-all">
+              </div>
+            </div>
+
+            <button type="submit" id="btn-reg-submit"
+              class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-bold text-sm shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-2 transition-all cursor-pointer">
+              <i class="fa-solid fa-user-plus"></i>
+              <span>Create Account & Sign In</span>
+            </button>
+          </form>
+
+          <!-- Security notice -->
+          <div class="mt-6 pt-4 border-t border-slate-800/60 flex items-center justify-center gap-1.5 text-[11px] text-slate-400">
+            <i class="fa-solid fa-shield text-emerald-400"></i>
+            <span>Secured via PBKDF2-HMAC-SHA256 Cryptography</span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- MAIN DASHBOARD VIEW (AUTHENTICATED) -->
+      <div id="dashboard-view" class="space-y-8 hidden">
+      
+      <!-- Sub-Banner / Title strip -->
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-slate-800/70">
+        <div>
+          <h2 class="text-2xl sm:text-3xl font-bold tracking-tight text-white flex items-center gap-2.5">
+            <span>MAV - Official Business Portal</span>
+          </h2>
+          <p class="text-sm text-slate-400 mt-1">Real-time daily transaction management, instant invoices & live revenue analytics</p>
+        </div>
+        <div class="flex items-center gap-2 text-xs font-medium text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3.5 py-1.5 rounded-full self-start sm:self-auto">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>Portal Active & Online</span>
+        </div>
+      </div>
+
+      <!-- Dashboard Metrics Cards -->
+      <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <!-- Card 1: Today's Total Sales -->
+        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 to-slate-900/90 border border-slate-800 p-5 shadow-xl hover:border-blue-500/40 transition-all duration-200">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Today's Total Sales</span>
+            <div class="w-10 h-10 rounded-xl bg-blue-500/15 text-blue-400 flex items-center justify-center border border-blue-500/20">
+              <i class="fa-solid fa-calendar-day"></i>
+            </div>
+          </div>
+          <div class="mt-4">
+            <div id="stat-today-sales" class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">$0.00</div>
+            <div class="flex items-center gap-1.5 mt-1 text-xs text-slate-400">
+              <span id="stat-today-orders-count" class="font-semibold text-blue-400">0 orders</span>
+              <span>recorded today</span>
+            </div>
+          </div>
+          <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-blue-500/5 rounded-full blur-xl pointer-events-none"></div>
+        </div>
+
+        <!-- Card 2: Total Orders -->
+        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 to-slate-900/90 border border-slate-800 p-5 shadow-xl hover:border-emerald-500/40 transition-all duration-200">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Orders</span>
+            <div class="w-10 h-10 rounded-xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center border border-emerald-500/20">
+              <i class="fa-solid fa-bag-shopping"></i>
+            </div>
+          </div>
+          <div class="mt-4">
+            <div id="stat-total-orders" class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">0</div>
+            <div class="flex items-center gap-1.5 mt-1 text-xs text-slate-400">
+              <span class="font-semibold text-emerald-400">100% Fulfilled</span>
+              <span>in system</span>
+            </div>
+          </div>
+          <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-emerald-500/5 rounded-full blur-xl pointer-events-none"></div>
+        </div>
+
+        <!-- Card 3: Monthly Revenue -->
+        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 to-slate-900/90 border border-slate-800 p-5 shadow-xl hover:border-indigo-500/40 transition-all duration-200">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Monthly Revenue</span>
+            <div class="w-10 h-10 rounded-xl bg-indigo-500/15 text-indigo-400 flex items-center justify-center border border-indigo-500/20">
+              <i class="fa-solid fa-chart-line"></i>
+            </div>
+          </div>
+          <div class="mt-4">
+            <div id="stat-monthly-revenue" class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">$0.00</div>
+            <div class="flex items-center gap-1.5 mt-1 text-xs text-slate-400">
+              <span id="stat-current-month-name" class="font-semibold text-indigo-400">This Month</span>
+              <span>gross volume</span>
+            </div>
+          </div>
+          <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-indigo-500/5 rounded-full blur-xl pointer-events-none"></div>
+        </div>
+
+        <!-- Card 4: All-Time Sales Volume -->
+        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 to-slate-900/90 border border-slate-800 p-5 shadow-xl hover:border-amber-500/40 transition-all duration-200">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Avg. Order Value</span>
+            <div class="w-10 h-10 rounded-xl bg-amber-500/15 text-amber-400 flex items-center justify-center border border-amber-500/20">
+              <i class="fa-solid fa-receipt"></i>
+            </div>
+          </div>
+          <div class="mt-4">
+            <div id="stat-avg-order" class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">$0.00</div>
+            <div class="flex items-center gap-1.5 mt-1 text-xs text-slate-400">
+              <span class="font-semibold text-amber-400">Standard</span>
+              <span>ticket average</span>
+            </div>
+          </div>
+          <div class="absolute -right-6 -bottom-6 w-24 h-24 bg-amber-500/5 rounded-full blur-xl pointer-events-none"></div>
+        </div>
+      </section>
+
+      <!-- Main Layout: Sales Entry Form & History Table -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <!-- Daily Sales & Item Entry Form -->
+        <section class="lg:col-span-4 xl:col-span-4">
+          <div class="rounded-2xl bg-slate-900 border border-slate-800 p-6 shadow-xl sticky top-28">
+            <div class="flex items-center justify-between pb-4 mb-5 border-b border-slate-800">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-lg bg-mav-500/20 text-mav-400 flex items-center justify-center">
+                  <i class="fa-solid fa-cart-plus text-sm"></i>
+                </div>
+                <div>
+                  <h3 class="font-bold text-white text-base">Daily Sales Entry</h3>
+                  <p class="text-xs text-slate-400">Create new billing transaction</p>
+                </div>
+              </div>
+              <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Fast Input</span>
+            </div>
+
+            <form id="sales-form" class="space-y-4" novalidate>
+              <!-- Date Field -->
+              <div>
+                <label for="sale-date" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+                  Sale Date <span class="text-rose-400">*</span>
+                </label>
+                <div class="relative">
+                  <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                    <i class="fa-regular fa-calendar text-xs"></i>
+                  </div>
+                  <input type="date" id="sale-date" required class="w-full pl-10 pr-3.5 py-2.5 bg-slate-950/80 border border-slate-800 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-mav-500 focus:border-transparent transition-all">
+                </div>
+              </div>
+
+              <!-- Customer Name -->
+              <div>
+                <label for="cust-name" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+                  Customer Name <span class="text-rose-400">*</span>
+                </label>
+                <div class="relative">
+                  <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                    <i class="fa-solid fa-user text-xs"></i>
+                  </div>
+                  <input type="text" id="cust-name" placeholder="e.g. Mahfuzur Rahman" required class="w-full pl-10 pr-3.5 py-2.5 bg-slate-950/80 border border-slate-800 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-mav-500 focus:border-transparent transition-all">
+                </div>
+              </div>
+
+              <!-- Customer Phone -->
+              <div>
+                <label for="cust-phone" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+                  Customer Phone <span class="text-rose-400">*</span>
+                </label>
+                <div class="relative">
+                  <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                    <i class="fa-solid fa-phone text-xs"></i>
+                  </div>
+                  <input type="tel" id="cust-phone" placeholder="e.g. +880 1712-345678" required class="w-full pl-10 pr-3.5 py-2.5 bg-slate-950/80 border border-slate-800 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-mav-500 focus:border-transparent transition-all">
+                </div>
+              </div>
+
+              <!-- Item Name -->
+              <div>
+                <label for="item-name" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+                  Item Name / Service <span class="text-rose-400">*</span>
+                </label>
+                <div class="relative">
+                  <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                    <i class="fa-solid fa-box-open text-xs"></i>
+                  </div>
+                  <input type="text" id="item-name" placeholder="e.g. Premium Business Package" required class="w-full pl-10 pr-3.5 py-2.5 bg-slate-950/80 border border-slate-800 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-mav-500 focus:border-transparent transition-all">
+                </div>
+              </div>
+
+              <!-- Quantity & Price per Unit (2 columns) -->
+              <div class="grid grid-cols-2 gap-3.5">
+                <div>
+                  <label for="item-qty" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+                    Quantity <span class="text-rose-400">*</span>
+                  </label>
+                  <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                      <i class="fa-solid fa-layer-group text-xs"></i>
+                    </div>
+                    <input type="number" id="item-qty" min="1" step="1" value="1" required class="w-full pl-10 pr-3 py-2.5 bg-slate-950/80 border border-slate-800 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-mav-500 focus:border-transparent transition-all">
+                  </div>
+                </div>
+
+                <div>
+                  <label for="item-price" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+                    Price / Unit <span class="text-rose-400">*</span>
+                  </label>
+                  <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500 font-bold text-xs">
+                      $
+                    </div>
+                    <input type="number" id="item-price" min="0" step="0.01" placeholder="0.00" required class="w-full pl-8 pr-3 py-2.5 bg-slate-950/80 border border-slate-800 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-mav-500 focus:border-transparent transition-all">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Live Total Calculation Preview -->
+              <div class="p-3.5 rounded-xl bg-slate-950/70 border border-slate-800 flex items-center justify-between">
+                <span class="text-xs text-slate-400 font-medium">Calculated Subtotal:</span>
+                <span id="form-total-preview" class="text-base font-extrabold text-blue-400">$0.00</span>
+              </div>
+
+              <!-- Submit Button -->
+              <button type="submit" id="btn-add-sale" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-mav-600 to-blue-600 hover:from-mav-500 hover:to-blue-500 text-white font-bold text-sm shadow-lg shadow-blue-600/30 flex items-center justify-center gap-2.5 transition-all active:scale-[0.99] cursor-pointer">
+                <i class="fa-solid fa-plus-circle text-base"></i>
+                <span>Add Sale & Update Records</span>
+              </button>
+            </form>
+          </div>
+        </section>
+
+        <!-- Sales History Table -->
+        <section class="lg:col-span-8 xl:col-span-8 space-y-4">
+          <div class="rounded-2xl bg-slate-900 border border-slate-800 shadow-xl overflow-hidden">
+            
+            <!-- Table Header Bar -->
+            <div class="p-5 sm:p-6 border-b border-slate-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                  <i class="fa-solid fa-table-list text-mav-400"></i>
+                  <span>Sales History</span>
+                  <span id="sales-badge-count" class="text-xs font-bold px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">0 entries</span>
+                </h3>
+                <p class="text-xs text-slate-400 mt-0.5">All recorded transactions with instant billing access</p>
+              </div>
+
+              <!-- Search Filter -->
+              <div class="flex items-center gap-2.5">
+                <div class="relative w-full sm:w-64">
+                  <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                    <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                  </div>
+                  <input type="text" id="search-input" placeholder="Search customer, item..." class="w-full pl-9 pr-8 py-2 bg-slate-950/80 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-mav-500 transition-all">
+                  <button id="btn-clear-search" class="hidden absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-slate-300">
+                    <i class="fa-solid fa-xmark text-xs"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Responsive Table Wrapper -->
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="bg-slate-950/60 border-b border-slate-800 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                    <th class="py-3.5 px-4 sm:px-6">Date</th>
+                    <th class="py-3.5 px-4 sm:px-6">Customer</th>
+                    <th class="py-3.5 px-4 sm:px-6">Item & Qty</th>
+                    <th class="py-3.5 px-4 sm:px-6 text-right">Total Amount</th>
+                    <th class="py-3.5 px-4 sm:px-6 text-center">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="sales-table-body" class="divide-y divide-slate-800/60 text-sm">
+                  <!-- Dynamic Rows populated by JS -->
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Empty State Display -->
+            <div id="table-empty-state" class="hidden p-12 text-center">
+              <div class="w-16 h-16 rounded-full bg-slate-800/80 text-slate-500 flex items-center justify-center mx-auto mb-3 text-2xl">
+                <i class="fa-regular fa-folder-open"></i>
+              </div>
+              <h4 class="text-base font-semibold text-slate-300">No Sales Found</h4>
+              <p id="empty-state-message" class="text-xs text-slate-500 max-w-sm mx-auto mt-1">Use the Daily Sales Entry form to record your first transaction.</p>
+            </div>
+
+            <!-- Table Footer Status Summary -->
+            <div class="p-4 bg-slate-950/40 border-t border-slate-800/70 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-2">
+              <span id="table-footer-count">Showing all transactions</span>
+              <div class="flex items-center gap-4 font-medium">
+                <span>Sum: <strong id="table-footer-sum" class="text-slate-200 font-bold">$0.00</strong></span>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-16 border-t border-slate-800/70 pt-6 text-center text-xs text-slate-500">
+      <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+        <p>© 2026 MAV - Mahfuz Official Sales & Billing Portal. All rights reserved.</p>
+        <p class="font-medium text-slate-400">Enterprise Billing & Invoicing Engine</p>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Invoice / Bill Generator Modal -->
+  <div id="invoice-modal" class="fixed inset-0 z-50 overflow-y-auto bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4 sm:p-6 transition-all duration-300">
+    <div id="invoice-modal-container" class="relative w-full max-w-3xl transform transition-all duration-300 scale-95 opacity-0">
+      
+      <!-- Top Action Bar -->
+      <div class="no-print flex items-center justify-between mb-4 px-1">
+        <div class="flex items-center gap-2">
+          <span class="w-3 h-3 rounded-full bg-emerald-500 animate-ping"></span>
+          <span class="text-xs font-semibold text-slate-300 uppercase tracking-wider">Official Invoice Preview</span>
+        </div>
+        <button id="btn-close-modal" class="text-slate-400 hover:text-white p-2 rounded-xl bg-slate-800 hover:bg-slate-700 transition-all cursor-pointer" aria-label="Close modal">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <!-- Printable Invoice Card -->
+      <div id="invoice-modal-content" class="bg-white text-slate-900 rounded-3xl p-6 sm:p-10 shadow-2xl border border-slate-200">
+        
+        <!-- Invoice Header -->
+        <div class="flex flex-col sm:flex-row justify-between items-start gap-6 border-b border-slate-200 pb-8">
+          <div>
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-xl bg-blue-600 flex items-center justify-center text-white font-extrabold text-2xl shadow-md">
+                M
+              </div>
+              <div>
+                <h2 class="text-2xl font-black tracking-tight text-slate-900">MAV PORTAL</h2>
+                <p class="text-xs font-semibold text-blue-600 uppercase tracking-wider">Mahfuz Official Sales & Billing</p>
+              </div>
+            </div>
+            <div class="mt-4 text-xs text-slate-500 space-y-0.5">
+              <p class="font-medium text-slate-700">MAV Enterprise Billing Systems</p>
+              <p>Dhaka / International Business Division</p>
+              <p>Email: billing@mavportal.com | Web: www.mavportal.com</p>
+            </div>
+          </div>
+
+          <!-- Invoice Details Box -->
+          <div class="sm:text-right">
+            <div class="inline-block px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 font-bold text-xs uppercase tracking-wider border border-emerald-300">
+              ● Official Bill / Paid
+            </div>
+            <div class="mt-3">
+              <div class="text-xs uppercase font-bold text-slate-400 tracking-wider">Invoice Number</div>
+              <div id="inv-modal-number" class="text-xl font-mono font-black text-slate-900 mt-0.5">MAV-2026-0001</div>
+            </div>
+            <div class="mt-2 text-xs text-slate-500">
+              <div>Issue Date: <span id="inv-modal-date" class="font-semibold text-slate-700">2026-09-16</span></div>
+              <div>Payment Status: <span class="font-bold text-emerald-600">CLEARED</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bill To & Customer Info -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 my-8 p-5 bg-slate-50 rounded-2xl border border-slate-100 print-bg-light">
+          <div>
+            <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Billed To (Customer):</span>
+            <h4 id="inv-modal-cust-name" class="text-lg font-bold text-slate-900">Mahfuzur Rahman</h4>
+            <p id="inv-modal-cust-phone" class="text-xs text-slate-600 mt-1 flex items-center gap-1.5">
+              <i class="fa-solid fa-phone text-slate-400 text-[10px]"></i>
+              <span>+880 1712-345678</span>
+            </p>
+          </div>
+          <div class="sm:text-right flex flex-col justify-center">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Billing Method:</span>
+            <p class="text-sm font-semibold text-slate-800">Direct Sales / Cash on Delivery / Digital</p>
+            <p class="text-xs text-slate-500 mt-0.5">Transaction reference logged in system</p>
+          </div>
+        </div>
+
+        <!-- Item Breakdown Table -->
+        <div class="overflow-x-auto mb-8">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b-2 border-slate-200 text-xs uppercase tracking-wider text-slate-500 font-bold">
+                <th class="py-3 px-2">#</th>
+                <th class="py-3 px-4">Item & Description</th>
+                <th class="py-3 px-4 text-center">Qty</th>
+                <th class="py-3 px-4 text-right">Price / Unit</th>
+                <th class="py-3 px-4 text-right">Total</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-sm">
+              <tr>
+                <td class="py-4 px-2 text-slate-400 font-mono text-xs">01</td>
+                <td class="py-4 px-4">
+                  <div id="inv-modal-item-name" class="font-bold text-slate-900">Premium Business Package</div>
+                  <div class="text-xs text-slate-400 mt-0.5">Authorized MAV Portal Order</div>
+                </td>
+                <td id="inv-modal-item-qty" class="py-4 px-4 text-center font-semibold text-slate-700">1</td>
+                <td id="inv-modal-item-unit" class="py-4 px-4 text-right font-mono text-slate-700">$100.00</td>
+                <td id="inv-modal-item-subtotal" class="py-4 px-4 text-right font-mono font-bold text-slate-900">$100.00</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Totals & Payment Summary -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 border-t border-slate-200 pt-6">
+          <div class="text-xs text-slate-500 max-w-sm space-y-1">
+            <p class="font-bold text-slate-800">Terms & Conditions:</p>
+            <p>This is a computer-generated official billing invoice issued by MAV (Mahfuz Official Business Portal). No physical signature required.</p>
+            <p class="text-emerald-700 font-semibold pt-1">Thank you for your valued business!</p>
+          </div>
+
+          <div class="w-full sm:w-64 space-y-2 text-right">
+            <div class="flex justify-between text-xs text-slate-600">
+              <span>Subtotal:</span>
+              <span id="inv-modal-subtotal" class="font-mono font-semibold text-slate-900">$100.00</span>
+            </div>
+            <div class="flex justify-between text-xs text-slate-600">
+              <span>Tax / VAT (0%):</span>
+              <span class="font-mono text-slate-700">$0.00</span>
+            </div>
+            <div class="border-t-2 border-slate-900 pt-2 flex justify-between items-baseline">
+              <span class="text-sm font-black uppercase text-slate-900">Grand Total:</span>
+              <span id="inv-modal-grandtotal" class="text-2xl font-mono font-black text-blue-700">$100.00</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Signature stamp -->
+        <div class="mt-10 pt-6 border-t border-dashed border-slate-200 flex items-center justify-between">
+          <div class="flex items-center gap-2 text-slate-400 text-xs">
+            <i class="fa-solid fa-shield-halved text-blue-600"></i>
+            <span>Verified by Mahfuz Official System</span>
+          </div>
+          <div class="text-right">
+            <div class="font-serif italic text-base text-slate-800 font-semibold">Mahfuzur Rahman</div>
+            <div class="text-[10px] uppercase font-bold tracking-wider text-slate-400">Authorized Signatory</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal Bottom Actions (Print & WhatsApp) -->
+      <div class="no-print mt-5 flex flex-col sm:flex-row items-center justify-end gap-3 px-1">
+        <button id="btn-share-whatsapp" class="w-full sm:w-auto px-5 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 transition-all cursor-pointer">
+          <i class="fa-brands fa-whatsapp text-lg"></i>
+          <span>Share on WhatsApp</span>
+        </button>
+
+        <button id="btn-print-invoice" class="w-full sm:w-auto px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm shadow-lg shadow-blue-600/30 flex items-center justify-center gap-2 transition-all cursor-pointer">
+          <i class="fa-solid fa-print text-base"></i>
+          <span>Print / Download PDF</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Application Logic -->
+  <script>
+    // ==========================================
+    // SECURITY & AUTHENTICATION MODULE (PBKDF2)
+    // ==========================================
+    const AUTH_ITERATIONS = 100000;
+    let users = [];
+    let currentUser = null;
+
+    function generateSalt() {
+      const array = new Uint8Array(16);
+      window.crypto.getRandomValues(array);
+      return Array.from(array).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    async function hashPassword(password, saltHex) {
+      const enc = new TextEncoder();
+      const saltBytes = new Uint8Array(saltHex.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+      
+      const keyMaterial = await window.crypto.subtle.importKey(
+        "raw",
+        enc.encode(password),
+        { name: "PBKDF2" },
+        false,
+        ["deriveBits", "deriveKey"]
+      );
+
+      const derivedKey = await window.crypto.subtle.deriveKey(
+        {
+          name: "PBKDF2",
+          salt: saltBytes,
+          iterations: AUTH_ITERATIONS,
+          hash: "SHA-256"
+        },
+        keyMaterial,
+        { name: "HMAC", hash: "SHA-256", length: 256 },
+        true,
+        ["sign"]
+      );
+
+      const exported = await window.crypto.subtle.exportKey("raw", derivedKey);
+      return Array.from(new Uint8Array(exported)).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    async function verifyPassword(password, saltHex, expectedHashHex) {
+      try {
+        const calculatedHash = await hashPassword(password, saltHex);
+        return calculatedHash === expectedHashHex;
+      } catch (e) {
+        console.error("Auth crypto error", e);
+        return false;
+      }
+    }
+
+    async function initUsers() {
+      const stored = localStorage.getItem('mav_portal_users');
+      if (stored) {
+        try {
+          users = JSON.parse(stored);
+        } catch (e) {
+          users = [];
+        }
+      }
+      if (!users || users.length === 0) {
+        const salt1 = generateSalt();
+        const hash1 = await hashPassword('password123', salt1);
+        const salt2 = generateSalt();
+        const hash2 = await hashPassword('staff123', salt2);
+
+        users = [
+          {
+            username: 'mahfuz',
+            fullName: 'Mahfuzur Rahman',
+            role: 'Store Manager',
+            saltHex: salt1,
+            hashHex: hash1,
+            createdAt: Date.now()
+          },
+          {
+            username: 'priya',
+            fullName: 'Priya Patel',
+            role: 'Sales Associate',
+            saltHex: salt2,
+            hashHex: hash2,
+            createdAt: Date.now()
+          }
+        ];
+        saveUsers();
+      }
+    }
+
+    function saveUsers() {
+      localStorage.setItem('mav_portal_users', JSON.stringify(users));
+    }
+
+    function checkSession() {
+      const activeUsername = sessionStorage.getItem('mav_active_user') || localStorage.getItem('mav_active_user');
+      if (activeUsername) {
+        const user = users.find(u => u.username.toLowerCase() === activeUsername.toLowerCase());
+        if (user) {
+          setAuthenticatedUser(user);
+          return;
+        }
+      }
+      setUnauthenticated();
+    }
+
+    function setAuthenticatedUser(user) {
+      currentUser = user;
+      document.getElementById('auth-view').classList.add('hidden');
+      document.getElementById('dashboard-view').classList.remove('hidden');
+      
+      const profileEl = document.getElementById('user-header-profile');
+      profileEl.classList.remove('hidden');
+      profileEl.classList.add('flex');
+      
+      const initials = user.fullName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+      document.getElementById('user-header-avatar').textContent = initials;
+      document.getElementById('user-header-name').textContent = user.fullName;
+      document.getElementById('user-header-role').textContent = user.role;
+
+      // Update invoice signatory
+      const signatoryEl = document.querySelector('.font-serif.italic.text-base.text-slate-800.font-semibold');
+      if (signatoryEl) {
+        signatoryEl.textContent = user.fullName;
+      }
+    }
+
+    function setUnauthenticated() {
+      currentUser = null;
+      sessionStorage.removeItem('mav_active_user');
+      localStorage.removeItem('mav_active_user');
+      document.getElementById('auth-view').classList.remove('hidden');
+      document.getElementById('dashboard-view').classList.add('hidden');
+      
+      const profileEl = document.getElementById('user-header-profile');
+      profileEl.classList.add('hidden');
+      profileEl.classList.remove('flex');
+    }
+
+    function showAuthAlert(msg, isSuccess = false) {
+      const alertEl = document.getElementById('auth-alert');
+      const textEl = document.getElementById('auth-alert-text');
+      const iconEl = document.getElementById('auth-alert-icon');
+      
+      alertEl.classList.remove('hidden', 'bg-rose-500/10', 'text-rose-400', 'border-rose-500/30', 'bg-emerald-500/10', 'text-emerald-400', 'border-emerald-500/30');
+      
+      if (isSuccess) {
+        alertEl.classList.add('bg-emerald-500/10', 'text-emerald-400', 'border-emerald-500/30');
+        iconEl.className = 'fa-solid fa-circle-check shrink-0';
+      } else {
+        alertEl.classList.add('bg-rose-500/10', 'text-rose-400', 'border-rose-500/30');
+        iconEl.className = 'fa-solid fa-triangle-exclamation shrink-0';
+      }
+      
+      textEl.textContent = msg;
+    }
+
+    function hideAuthAlert() {
+      document.getElementById('auth-alert').classList.add('hidden');
+    }
+
+    function fillDemoCredentials(u, p) {
+      document.getElementById('tab-login').click();
+      document.getElementById('login-username').value = u;
+      document.getElementById('login-password').value = p;
+      hideAuthAlert();
+    }
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      hideAuthAlert();
+
+      const usernameInput = document.getElementById('login-username').value.trim().toLowerCase();
+      const passwordInput = document.getElementById('login-password').value;
+      const remember = document.getElementById('login-remember').checked;
+      const btn = document.getElementById('btn-login-submit');
+
+      if (!usernameInput || !passwordInput) {
+        showAuthAlert('Please enter both username and password.');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i><span>Verifying...</span>';
+
+      try {
+        const user = users.find(u => u.username.toLowerCase() === usernameInput);
+        if (!user) {
+          showAuthAlert('Invalid username or password.');
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i><span>Sign In to Portal</span>';
+          return;
+        }
+
+        const isValid = await verifyPassword(passwordInput, user.saltHex, user.hashHex);
+        if (!isValid) {
+          showAuthAlert('Invalid username or password.');
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i><span>Sign In to Portal</span>';
+          return;
+        }
+
+        if (remember) {
+          localStorage.setItem('mav_active_user', user.username);
+        } else {
+          sessionStorage.setItem('mav_active_user', user.username);
+        }
+
+        setAuthenticatedUser(user);
+        showToast('Welcome back!', `Signed in as ${user.fullName} (${user.role})`);
+        document.getElementById('login-password').value = '';
+      } catch (err) {
+        console.error(err);
+        showAuthAlert('Authentication error occurred. Please try again.');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i><span>Sign In to Portal</span>';
+      }
+    }
+
+    async function handleRegister(e) {
+      e.preventDefault();
+      hideAuthAlert();
+
+      const fullName = document.getElementById('reg-fullname').value.trim();
+      const username = document.getElementById('reg-username').value.trim().toLowerCase();
+      const role = document.getElementById('reg-role').value;
+      const password = document.getElementById('reg-password').value;
+      const confirmPassword = document.getElementById('reg-confirm-password').value;
+      const btn = document.getElementById('btn-reg-submit');
+
+      if (fullName.length < 2) {
+        showAuthAlert('Please enter your full name.');
+        return;
+      }
+
+      if (username.length < 3) {
+        showAuthAlert('Username must be at least 3 characters.');
+        return;
+      }
+
+      if (users.some(u => u.username.toLowerCase() === username)) {
+        showAuthAlert(`Username "${username}" is already taken. Please choose another.`);
+        return;
+      }
+
+      if (password.length < 6) {
+        showAuthAlert('Password must be at least 6 characters long.');
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        showAuthAlert('Passwords do not match. Please verify.');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i><span>Creating Account...</span>';
+
+      try {
+        const salt = generateSalt();
+        const hash = await hashPassword(password, salt);
+
+        const newUser = {
+          username,
+          fullName,
+          role,
+          saltHex: salt,
+          hashHex: hash,
+          createdAt: Date.now()
+        };
+
+        users.push(newUser);
+        saveUsers();
+
+        localStorage.setItem('mav_active_user', newUser.username);
+        setAuthenticatedUser(newUser);
+
+        showToast('Registration Successful', `Welcome to MAV Portal, ${newUser.fullName}!`);
+        document.getElementById('register-form').reset();
+      } catch (err) {
+        console.error(err);
+        showAuthAlert('Failed to create account securely. Please try again.');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-user-plus"></i><span>Create Account & Sign In</span>';
+      }
+    }
+
+    function handleLogout() {
+      if (confirm('Are you sure you want to sign out of MAV Portal?')) {
+        setUnauthenticated();
+        showToast('Signed Out', 'You have been safely signed out.');
+      }
+    }
+
+    const DEFAULT_SALES = [
+      {
+        id: 'MAV-2026-0041',
+        date: new Date().toISOString().split('T')[0],
+        customerName: 'Mahfuzur Rahman',
+        customerPhone: '+880 1712-345678',
+        itemName: 'Enterprise Cloud Server Setup',
+        quantity: 1,
+        unitPrice: 450.00,
+        total: 450.00,
+        timestamp: Date.now() - 1000 * 60 * 30
+      },
+      {
+        id: 'MAV-2026-0040',
+        date: new Date().toISOString().split('T')[0],
+        customerName: 'Apex Tech Solutions',
+        customerPhone: '+1 (555) 349-9210',
+        itemName: 'Full-Stack Web Development Retainer',
+        quantity: 2,
+        unitPrice: 650.00,
+        total: 1300.00,
+        timestamp: Date.now() - 1000 * 60 * 120
+      },
+      {
+        id: 'MAV-2026-0039',
+        date: new Date(Date.now() - 86400000).toISOString().split('T')[0],
+        customerName: 'Tariqul Islam',
+        customerPhone: '+880 1819-876543',
+        itemName: 'UI/UX Redesign Consultation',
+        quantity: 1,
+        unitPrice: 280.00,
+        total: 280.00,
+        timestamp: Date.now() - 86400000
+      },
+      {
+        id: 'MAV-2026-0038',
+        date: new Date(Date.now() - 86400000 * 3).toISOString().split('T')[0],
+        customerName: 'Global Commerce Ltd',
+        customerPhone: '+1 (555) 782-1144',
+        itemName: 'API Gateway Integration & Security Audit',
+        quantity: 3,
+        unitPrice: 320.00,
+        total: 960.00,
+        timestamp: Date.now() - 86400000 * 3
+      }
+    ];
+
+    let sales = [];
+    let currentInvoiceSale = null;
+
+    function initData() {
+      const stored = localStorage.getItem('mav_sales_portal_data');
+      if (stored) {
+        try {
+          sales = JSON.parse(stored);
+        } catch (e) {
+          sales = [...DEFAULT_SALES];
+        }
+      } else {
+        sales = [...DEFAULT_SALES];
+        saveData();
+      }
+    }
+
+    function saveData() {
+      localStorage.setItem('mav_sales_portal_data', JSON.stringify(sales));
+    }
+
+    function formatCurrency(num) {
+      return '$' + Number(num || 0).toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
+
+    function initTheme() {
+      const storedTheme = localStorage.getItem('mav_portal_theme') || 'dark';
+      applyTheme(storedTheme);
+    }
+
+    function applyTheme(theme) {
+      const html = document.documentElement;
+      const themeIcon = document.getElementById('theme-icon');
+      if (theme === 'dark') {
+        html.classList.add('dark');
+        themeIcon.className = 'fa-solid fa-sun text-amber-400';
+      } else {
+        html.classList.remove('dark');
+        themeIcon.className = 'fa-solid fa-moon text-slate-600';
+      }
+      localStorage.setItem('mav_portal_theme', theme);
+    }
+
+    function toggleTheme() {
+      const isDark = document.documentElement.classList.contains('dark');
+      applyTheme(isDark ? 'light' : 'dark');
+      showToast('Theme Changed', `Switched to ${isDark ? 'Light' : 'Dark'} mode.`);
+    }
+
+    function updateClock() {
+      const now = new Date();
+      const timeEl = document.getElementById('live-time');
+      const dateEl = document.getElementById('live-date');
+      if (timeEl) {
+        timeEl.textContent = now.toLocaleTimeString('en-US', { hour12: false });
+      }
+      if (dateEl) {
+        dateEl.textContent = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      }
+    }
+
+    function updateDashboard() {
+      const todayStr = new Date().toISOString().split('T')[0];
+      const currentYear = new Date().getFullYear();
+      const currentMonth = new Date().getMonth();
+
+      let todaySales = 0;
+      let todayOrdersCount = 0;
+      let totalOrders = sales.length;
+      let monthlyRevenue = 0;
+      let grandTotalRevenue = 0;
+
+      sales.forEach(sale => {
+        const saleDate = new Date(sale.date);
+        const amount = Number(sale.total) || 0;
+        grandTotalRevenue += amount;
+
+        if (sale.date === todayStr) {
+          todaySales += amount;
+          todayOrdersCount++;
+        }
+
+        if (saleDate.getFullYear() === currentYear && saleDate.getMonth() === currentMonth) {
+          monthlyRevenue += amount;
+        }
+      });
+
+      const avgOrder = totalOrders > 0 ? (grandTotalRevenue / totalOrders) : 0;
+
+      document.getElementById('stat-today-sales').textContent = formatCurrency(todaySales);
+      document.getElementById('stat-today-orders-count').textContent = `${todayOrdersCount} orders`;
+      document.getElementById('stat-total-orders').textContent = totalOrders.toString();
+      document.getElementById('stat-monthly-revenue').textContent = formatCurrency(monthlyRevenue);
+      document.getElementById('stat-avg-order').textContent = formatCurrency(avgOrder);
+
+      const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+      const currentMonthLabel = document.getElementById('stat-current-month-name');
+      if (currentMonthLabel) {
+        currentMonthLabel.textContent = monthNames[currentMonth];
+      }
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById('sales-table-body');
+      const emptyState = document.getElementById('table-empty-state');
+      const badgeCount = document.getElementById('sales-badge-count');
+      const footerCount = document.getElementById('table-footer-count');
+      const footerSum = document.getElementById('table-footer-sum');
+      const searchQuery = (document.getElementById('search-input').value || '').trim().toLowerCase();
+
+      const filtered = sales.filter(s => {
+        if (!searchQuery) return true;
+        const matchesName = (s.customerName || '').toLowerCase().includes(searchQuery);
+        const matchesPhone = (s.customerPhone || '').toLowerCase().includes(searchQuery);
+        const matchesItem = (s.itemName || '').toLowerCase().includes(searchQuery);
+        const matchesId = (s.id || '').toLowerCase().includes(searchQuery);
+        return matchesName || matchesPhone || matchesItem || matchesId;
+      });
+
+      badgeCount.textContent = `${filtered.length} of ${sales.length} entries`;
+      footerCount.textContent = `Showing ${filtered.length} transaction${filtered.length === 1 ? '' : 's'}`;
+
+      let filteredSum = 0;
+      filtered.forEach(s => filteredSum += Number(s.total) || 0);
+      footerSum.textContent = formatCurrency(filteredSum);
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+
+      tbody.innerHTML = filtered.map((sale) => {
+        return `
+          <tr class="hover:bg-slate-800/40 transition-colors">
+            <td class="py-4 px-4 sm:px-6 whitespace-nowrap">
+              <div class="font-medium text-slate-200">${escapeHtml(sale.date)}</div>
+              <div class="text-[11px] font-mono text-slate-500">${escapeHtml(sale.id)}</div>
+            </td>
+            
+            <td class="py-4 px-4 sm:px-6">
+              <div class="font-bold text-white">${escapeHtml(sale.customerName)}</div>
+              <div class="text-xs text-slate-400 flex items-center gap-1 mt-0.5">
+                <i class="fa-solid fa-phone text-[10px] text-slate-500"></i>
+                <span>${escapeHtml(sale.customerPhone)}</span>
+              </div>
+            </td>
+
+            <td class="py-4 px-4 sm:px-6">
+              <div class="font-medium text-slate-200">${escapeHtml(sale.itemName)}</div>
+              <div class="text-xs text-slate-400 mt-0.5">
+                <span class="inline-flex items-center px-2 py-0.5 rounded bg-slate-800 text-blue-400 text-[11px] font-semibold">
+                  Qty: ${sale.quantity} × ${formatCurrency(sale.unitPrice)}
+                </span>
+              </div>
+            </td>
+
+            <td class="py-4 px-4 sm:px-6 text-right whitespace-nowrap">
+              <div class="font-mono font-extrabold text-blue-400 text-base">
+                ${formatCurrency(sale.total)}
+              </div>
+              <span class="inline-block text-[10px] uppercase font-bold text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">
+                Paid
+              </span>
+            </td>
+
+            <td class="py-4 px-4 sm:px-6 text-center whitespace-nowrap">
+              <div class="flex items-center justify-center gap-2">
+                <button onclick="openInvoice('${sale.id}')" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-mav-600 hover:bg-mav-500 text-white font-semibold text-xs shadow-md shadow-blue-600/20 transition-all active:scale-95 cursor-pointer" title="Generate printable bill">
+                  <i class="fa-solid fa-file-invoice"></i>
+                  <span>Generate Invoice</span>
+                </button>
+                <button onclick="deleteSale('${sale.id}')" class="p-1.5 rounded-lg text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 transition-colors" title="Delete record">
+                  <i class="fa-solid fa-trash text-xs"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function updateFormTotalPreview() {
+      const qty = parseFloat(document.getElementById('item-qty').value) || 0;
+      const price = parseFloat(document.getElementById('item-price').value) || 0;
+      const total = qty * price;
+      document.getElementById('form-total-preview').textContent = formatCurrency(total);
+    }
+
+    function handleAddSale(e) {
+      e.preventDefault();
+
+      const dateInput = document.getElementById('sale-date');
+      const nameInput = document.getElementById('cust-name');
+      const phoneInput = document.getElementById('cust-phone');
+      const itemInput = document.getElementById('item-name');
+      const qtyInput = document.getElementById('item-qty');
+      const priceInput = document.getElementById('item-price');
+
+      const date = dateInput.value;
+      const customerName = nameInput.value.trim();
+      const customerPhone = phoneInput.value.trim();
+      const itemName = itemInput.value.trim();
+      const quantity = parseInt(qtyInput.value, 10);
+      const unitPrice = parseFloat(priceInput.value);
+
+      if (!date || !customerName || !customerPhone || !itemName || isNaN(quantity) || quantity <= 0 || isNaN(unitPrice) || unitPrice < 0) {
+        showToast('Validation Error', 'Please complete all required fields correctly.', 'error');
+        return;
+      }
+
+      const total = quantity * unitPrice;
+      const invoiceNumber = `MAV-${new Date().getFullYear()}-${String(sales.length + 42).padStart(4, '0')}`;
+
+      const newSale = {
+        id: invoiceNumber,
+        date,
+        customerName,
+        customerPhone,
+        itemName,
+        quantity,
+        unitPrice,
+        total,
+        timestamp: Date.now()
+      };
+
+      sales.unshift(newSale);
+      saveData();
+
+      updateDashboard();
+      renderTable();
+
+      nameInput.value = '';
+      phoneInput.value = '';
+      itemInput.value = '';
+      qtyInput.value = '1';
+      priceInput.value = '';
+      updateFormTotalPreview();
+
+      showToast('Sale Recorded!', `Invoice ${invoiceNumber} created for ${customerName}`);
+    }
+
+    function deleteSale(id) {
+      const sale = sales.find(s => s.id === id);
+      if (!sale) return;
+      if (confirm(`Are you sure you want to remove sale record ${sale.id} (${sale.customerName})?`)) {
+        sales = sales.filter(s => s.id !== id);
+        saveData();
+        updateDashboard();
+        renderTable();
+        showToast('Deleted', `Sale record ${id} removed.`);
+      }
+    }
+
+    function openInvoice(id) {
+      const sale = sales.find(s => s.id === id);
+      if (!sale) return;
+
+      currentInvoiceSale = sale;
+
+      document.getElementById('inv-modal-number').textContent = sale.id;
+      document.getElementById('inv-modal-date').textContent = sale.date;
+      document.getElementById('inv-modal-cust-name').textContent = sale.customerName;
+      document.getElementById('inv-modal-cust-phone').textContent = sale.customerPhone;
+      document.getElementById('inv-modal-item-name').textContent = sale.itemName;
+      document.getElementById('inv-modal-item-qty').textContent = sale.quantity;
+      document.getElementById('inv-modal-item-unit').textContent = formatCurrency(sale.unitPrice);
+      document.getElementById('inv-modal-item-subtotal').textContent = formatCurrency(sale.total);
+      document.getElementById('inv-modal-subtotal').textContent = formatCurrency(sale.total);
+      document.getElementById('inv-modal-grandtotal').textContent = formatCurrency(sale.total);
+
+      const modal = document.getElementById('invoice-modal');
+      const container = document.getElementById('invoice-modal-container');
+      modal.classList.remove('hidden');
+      setTimeout(() => {
+        container.classList.remove('scale-95', 'opacity-0');
+        container.classList.add('scale-100', 'opacity-100');
+      }, 10);
+    }
+
+    function closeInvoice() {
+      const modal = document.getElementById('invoice-modal');
+      const container = document.getElementById('invoice-modal-container');
+      container.classList.remove('scale-100', 'opacity-100');
+      container.classList.add('scale-95', 'opacity-0');
+      setTimeout(() => {
+        modal.classList.add('hidden');
+        currentInvoiceSale = null;
+      }, 200);
+    }
+
+    function printInvoice() {
+      window.print();
+    }
+
+    function shareOnWhatsApp() {
+      if (!currentInvoiceSale) return;
+      const s = currentInvoiceSale;
+      let cleanPhone = s.customerPhone.replace(/[^0-9]/g, '');
+
+      const message = 
+`*🧾 INVOICE FROM MAV OFFICIAL BUSINESS PORTAL*
+*Invoice No:* ${s.id}
+*Date:* ${s.date}
+*Customer:* ${s.customerName}
+----------------------------------------
+*Item / Service:* ${s.itemName}
+*Quantity:* ${s.quantity}
+*Price/Unit:* ${formatCurrency(s.unitPrice)}
+----------------------------------------
+*GRAND TOTAL:* ${formatCurrency(s.total)}
+*Status:* PAID ✅
+----------------------------------------
+Thank you for doing business with MAV!
+_Mahfuz Official Sales & Billing Portal_`;
+
+      const encodedMsg = encodeURIComponent(message);
+      let waUrl = `https://api.whatsapp.com/send?text=${encodedMsg}`;
+      if (cleanPhone) {
+        waUrl += `&phone=${cleanPhone}`;
+      }
+
+      window.open(waUrl, '_blank');
+      showToast('WhatsApp Share', 'Opening WhatsApp with formatted bill...');
+    }
+
+    let toastTimeout = null;
+    function showToast(title, message, type = 'success') {
+      const toast = document.getElementById('toast');
+      const toastTitle = document.getElementById('toast-title');
+      const toastMsg = document.getElementById('toast-message');
+      const toastIcon = document.getElementById('toast-icon');
+
+      toastTitle.textContent = title;
+      toastMsg.textContent = message;
+
+      if (type === 'error') {
+        toastIcon.className = 'w-8 h-8 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center shrink-0';
+        toastIcon.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
+      } else {
+        toastIcon.className = 'w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0';
+        toastIcon.innerHTML = '<i class="fa-solid fa-check"></i>';
+      }
+
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      if (toastTimeout) clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 3500);
+    }
+
+    function resetSampleData() {
+      if (confirm("Reset portal to initial demo sales data?")) {
+        sales = JSON.parse(JSON.stringify(DEFAULT_SALES));
+        saveData();
+        updateDashboard();
+        renderTable();
+        showToast('Sample Data Loaded', 'Portal populated with demo transactions.');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      initTheme();
+      initData();
+      await initUsers();
+      checkSession();
+
+      // Auth Tab Switching
+      const tabLogin = document.getElementById('tab-login');
+      const tabRegister = document.getElementById('tab-register');
+      const loginForm = document.getElementById('login-form');
+      const registerForm = document.getElementById('register-form');
+
+      tabLogin.addEventListener('click', () => {
+        tabLogin.className = 'flex-1 py-2 rounded-lg text-xs font-bold transition-all text-white bg-mav-600 shadow-md';
+        tabRegister.className = 'flex-1 py-2 rounded-lg text-xs font-bold transition-all text-slate-400 hover:text-slate-200';
+        loginForm.classList.remove('hidden');
+        registerForm.classList.add('hidden');
+        hideAuthAlert();
+      });
+
+      tabRegister.addEventListener('click', () => {
+        tabRegister.className = 'flex-1 py-2 rounded-lg text-xs font-bold transition-all text-white bg-emerald-600 shadow-md';
+        tabLogin.className = 'flex-1 py-2 rounded-lg text-xs font-bold transition-all text-slate-400 hover:text-slate-200';
+        registerForm.classList.remove('hidden');
+        loginForm.classList.add('hidden');
+        hideAuthAlert();
+      });
+
+      // Password visibility toggles
+      document.getElementById('btn-toggle-login-pwd').addEventListener('click', () => {
+        const input = document.getElementById('login-password');
+        const icon = document.querySelector('#btn-toggle-login-pwd i');
+        if (input.type === 'password') {
+          input.type = 'text';
+          icon.className = 'fa-solid fa-eye-slash text-xs';
+        } else {
+          input.type = 'password';
+          icon.className = 'fa-solid fa-eye text-xs';
+        }
+      });
+
+      document.getElementById('btn-toggle-reg-pwd').addEventListener('click', () => {
+        const input = document.getElementById('reg-password');
+        const icon = document.querySelector('#btn-toggle-reg-pwd i');
+        if (input.type === 'password') {
+          input.type = 'text';
+          icon.className = 'fa-solid fa-eye-slash text-xs';
+        } else {
+          input.type = 'password';
+          icon.className = 'fa-solid fa-eye text-xs';
+        }
+      });
+
+      // Form submissions
+      loginForm.addEventListener('submit', handleLogin);
+      registerForm.addEventListener('submit', handleRegister);
+
+      // Logout handler
+      document.getElementById('btn-logout').addEventListener('click', handleLogout);
+
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('sale-date').value = today;
+
+      updateClock();
+      setInterval(updateClock, 1000);
+
+      document.getElementById('sales-form').addEventListener('submit', handleAddSale);
+      document.getElementById('item-qty').addEventListener('input', updateFormTotalPreview);
+      document.getElementById('item-price').addEventListener('input', updateFormTotalPreview);
+
+      const searchInput = document.getElementById('search-input');
+      const clearSearchBtn = document.getElementById('btn-clear-search');
+      searchInput.addEventListener('input', () => {
+        if (searchInput.value) {
+          clearSearchBtn.classList.remove('hidden');
+        } else {
+          clearSearchBtn.classList.add('hidden');
+        }
+        renderTable();
+      });
+
+      clearSearchBtn.addEventListener('click', () => {
+        searchInput.value = '';
+        clearSearchBtn.classList.add('hidden');
+        renderTable();
+      });
+
+      document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
+      document.getElementById('btn-reset-data').addEventListener('click', resetSampleData);
+
+      document.getElementById('btn-close-modal').addEventListener('click', closeInvoice);
+      document.getElementById('btn-print-invoice').addEventListener('click', printInvoice);
+      document.getElementById('btn-share-whatsapp').addEventListener('click', shareOnWhatsApp);
+
+      document.getElementById('invoice-modal').addEventListener('click', (e) => {
+        if (e.target.id === 'invoice-modal') {
+          closeInvoice();
+        }
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !document.getElementById('invoice-modal').classList.contains('hidden')) {
+          closeInvoice();
+        }
+      });
+
+      updateDashboard();
+      renderTable();
+      updateFormTotalPreview();
+    });
+  </script>
+</body>
+</html>
